@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Autorisation TikTok · Renard.exe</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0B1B3A; color: #F5F7FB; line-height: 1.6; }
+    main { max-width: 720px; margin: 0 auto; padding: 48px 16px; }
+    code { display: block; padding: 12px; background: #13284F; border-radius: 6px; word-break: break-all; }
+    button { margin-top: 12px; padding: 8px 16px; border: 0; border-radius: 6px; background: #FF7A1A; color: #0B1B3A; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Autorisation TikTok</h1>
+    <p id="status">Lecture de la réponse de TikTok…</p>
+    <code id="code" hidden></code>
+    <button id="copy" type="button" hidden>Copier le code</button>
+    <p>Collez ce code dans le terminal où tourne <code style="display:inline;padding:2px 6px">npm run tiktok:auth</code>. Il n'est envoyé nulle part depuis cette page et expire rapidement.</p>
+  </main>
+  <script>
+    // Affiche le paramètre `code` (ou l'erreur) renvoyé par TikTok. Rien n'est stocké ni transmis.
+    const params = new URLSearchParams(window.location.search);
+    const status = document.getElementById('status');
+    const codeEl = document.getElementById('code');
+    const copyBtn = document.getElementById('copy');
+    const code = params.get('code');
+    const error = params.get('error');
+    if (code) {
+      status.textContent = 'Autorisation accordée. Votre code :';
+      codeEl.textContent = code;
+      codeEl.hidden = false;
+      copyBtn.hidden = false;
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.textContent = 'Copié';
+        } catch {
+          copyBtn.textContent = 'Copie impossible : sélectionnez le code';
+        }
+      });
+    } else if (error) {
+      status.textContent = 'TikTok a renvoyé une erreur : ' + error + ' ' + (params.get('error_description') || '');
+    } else {
+      status.textContent = 'Aucun code reçu. Relancez « npm run tiktok:auth ».';
+    }
+  </script>
+</body>
+</html>
